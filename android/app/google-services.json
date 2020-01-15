@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "456936975879",
+    "firebase_url": "https://mapschat-265103.firebaseio.com",
+    "project_id": "mapschat-265103",
+    "storage_bucket": "mapschat-265103.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:456936975879:android:6d1949ce184e83a33704a2",
+        "android_client_info": {
+          "package_name": "com.chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "456936975879-jjmvfrriu8jva7iv1sevc4tt8mq0qjic.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-PH3UKlivnM3yGIchxxlChfXIEbKOHXI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "456936975879-jjmvfrriu8jva7iv1sevc4tt8mq0qjic.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
