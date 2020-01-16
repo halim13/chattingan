@@ -94,6 +94,7 @@ export default class Register extends Component {
             about: '',
             phone: '',
             location: {
+              city: '',
               lat: '',
               long: '',
             },
