@@ -4,7 +4,7 @@ import {ListItem, Thumbnail, Text, Left, Body} from 'native-base';
 export default class Friends extends Component {
   render() {
     const {item} = this.props;
-    const id = item.id;
+    // const id = item.id;
     const name = item.name;
     const photo = item.photo;
     const description = item.description;

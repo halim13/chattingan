@@ -5,7 +5,7 @@ import {ListItem, Left, Body, Right, Thumbnail, Text, View} from 'native-base';
 export default class ListChat extends Component {
   render() {
     const {item} = this.props;
-    const id = item.id;
+    // const id = item.id;
     const notification = item.notification;
     const name = item.name;
     const photo = item.photo;
