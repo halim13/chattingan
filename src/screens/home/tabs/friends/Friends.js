@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import ListFriend from './ListFriend';
 import {Container} from 'native-base';
 import {FlatList, RefreshControl, StyleSheet} from 'react-native';
-import ActionButton from 'react-native-action-button';
+import ActionButtons from 'react-native-action-button';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 export default class ListAvatarExample extends Component {
@@ -55,7 +55,7 @@ export default class ListAvatarExample extends Component {
             renderItem={({item}) => <ListFriend item={item} />}
             keyExtractor={item => item.id.toString()}
           />
-          <ActionButton
+          <ActionButtons
             buttonColor="#25D366"
             renderIcon={active =>
               active ? (

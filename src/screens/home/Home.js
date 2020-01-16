@@ -1,6 +1,3 @@
-import firebase from '../../../android/configs/firebase';
-import {StackActions, NavigationActions} from 'react-navigation';
-
 // export default class Home extends Component {
 //   render() {
 //     const {currentUser} = this.state;
@@ -16,7 +13,6 @@ import {StackActions, NavigationActions} from 'react-navigation';
 //     );
 //   }
 // }
-
 import React, {Component} from 'react';
 import {
   Container,
@@ -28,6 +24,9 @@ import {
   Body,
   Right,
   Icon,
+  Item,
+  Button,
+  Input,
 } from 'native-base';
 import {SafeAreaView, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -40,6 +39,10 @@ import {
   MenuTrigger,
 } from 'react-native-popup-menu';
 import Spinner from 'react-native-loading-spinner-overlay';
+import firebase from '../../../android/configs/firebase';
+import {StackActions, NavigationActions} from 'react-navigation';
+import {YellowBox} from 'react-native';
+import _ from 'lodash';
 
 export default class TabsAdvancedExample extends Component {
   constructor() {
@@ -47,11 +50,16 @@ export default class TabsAdvancedExample extends Component {
     this.state = {
       currentUser: null,
       loading: false,
+      search: true,
     };
   }
   getUser = () => {
     const {currentUser} = firebase.auth();
     this.setState({currentUser});
+  };
+  toggleSearch = () => {
+    const {search} = this.state;
+    this.setState({search: !search});
   };
   componentDidMount() {
     this.getUser();
@@ -72,7 +80,14 @@ export default class TabsAdvancedExample extends Component {
     }
   };
   render() {
-    const {loading} = this.state;
+    const {loading, search} = this.state;
+    YellowBox.ignoreWarnings(['componentWillReceiveProps']);
+    const _console = _.clone(console);
+    console.warn = message => {
+      if (message.indexOf('componentWillReceiveProps') <= -1) {
+        _console.warn(message);
+      }
+    };
     return (
       <SafeAreaView style={styles.flex}>
         {loading && (
@@ -85,54 +100,88 @@ export default class TabsAdvancedExample extends Component {
           />
         )}
         <Container>
-          <Header hasTabs style={styles.header}>
-            <Body>
-              <Text style={[styles.headerText, styles.white]}>Aya naon ?</Text>
-            </Body>
-            <Right>
-              <TouchableOpacity>
-                <Icon name="search" style={[styles.white, styles.icon]} />
+          {search && (
+            <Item style={styles.item}>
+              <TouchableOpacity
+                style={styles.arrowButton}
+                onPress={() => {
+                  this.toggleSearch();
+                }}>
+                <Icon name="arrow-back" style={styles.backIcon} />
               </TouchableOpacity>
-              <Menu>
-                <MenuTrigger>
-                  <Entypo
-                    name="dots-three-vertical"
-                    style={[styles.white, styles.icons]}
-                  />
-                </MenuTrigger>
-                <MenuOptions>
-                  <MenuOption onSelect={() => {}} style={styles.menu}>
-                    <Text>Profile</Text>
-                  </MenuOption>
-                  <MenuOption
-                    onSelect={() => {
-                      Alert.alert(
-                        'Sign out',
-                        'Are you sure?',
-                        [
-                          {
-                            text: 'No',
-                            onPress: () => {},
-                            style: 'cancel',
-                          },
-                          {
-                            text: 'Yes',
-                            onPress: () => {
-                              this.signOutUser();
+
+              <Input
+                autoFocus={this.state.search ? true : false}
+                autoCapitalize="none"
+                getRef={input => {
+                  this.searchRef = input;
+                }}
+                placeholder="Search..."
+                returnKeyType="search"
+                onChangeText={text => {
+                  // this.search(text);
+                }}
+              />
+            </Item>
+          )}
+          {!search && (
+            <Header hasTabs style={styles.header}>
+              <Body>
+                <Text style={[styles.headerText, styles.white]}>
+                  Aya naon ?
+                </Text>
+              </Body>
+              <Right>
+                <TouchableOpacity
+                  onPress={() => {
+                    this.toggleSearch();
+                  }}>
+                  <Icon name="search" style={[styles.white, styles.icon]} />
+                </TouchableOpacity>
+                <Menu>
+                  <MenuTrigger>
+                    <Entypo
+                      name="dots-three-vertical"
+                      style={[styles.white, styles.icons]}
+                    />
+                  </MenuTrigger>
+                  <MenuOptions>
+                    <MenuOption onSelect={() => {}} style={styles.menu}>
+                      <Text>Friends Locations</Text>
+                    </MenuOption>
+                    <MenuOption onSelect={() => {}} style={styles.menu}>
+                      <Text>Profile</Text>
+                    </MenuOption>
+                    <MenuOption
+                      onSelect={() => {
+                        Alert.alert(
+                          'Sign out',
+                          'Are you sure?',
+                          [
+                            {
+                              text: 'No',
+                              onPress: () => {},
+                              style: 'cancel',
                             },
-                          },
-                        ],
-                        {cancelable: false},
-                      );
-                    }}
-                    style={styles.menu}>
-                    <Text style={styles.red}>Logout</Text>
-                  </MenuOption>
-                </MenuOptions>
-              </Menu>
-            </Right>
-          </Header>
-          <Tabs style={styles.header}>
+                            {
+                              text: 'Yes',
+                              onPress: () => {
+                                this.signOutUser();
+                              },
+                            },
+                          ],
+                          {cancelable: false},
+                        );
+                      }}
+                      style={styles.menu}>
+                      <Text style={styles.red}>Logout</Text>
+                    </MenuOption>
+                  </MenuOptions>
+                </Menu>
+              </Right>
+            </Header>
+          )}
+          <Tabs>
             <Tab
               heading={
                 <TabHeading style={styles.header}>
@@ -161,6 +210,9 @@ const styles = StyleSheet.create({
   spinnerTextStyle: {
     color: '#fff',
   },
+  backIcon: {color: '#075E54', fontSize: 30},
+  item: {height: 56},
+  arrowButton: {paddingHorizontal: 10},
   menu: {padding: 15},
   red: {color: 'red'},
   header: {backgroundColor: '#075E54'},
