@@ -25,10 +25,15 @@ import {
   Right,
   Icon,
   Item,
-  Button,
   Input,
 } from 'native-base';
-import {SafeAreaView, StyleSheet, TouchableOpacity, Alert} from 'react-native';
+import {
+  SafeAreaView,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  StatusBar,
+} from 'react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Chats from './tabs/chats/Chats';
 import Friends from './tabs/friends/Friends';
@@ -50,7 +55,7 @@ export default class TabsAdvancedExample extends Component {
     this.state = {
       currentUser: null,
       loading: false,
-      search: true,
+      search: false,
     };
   }
   getUser = () => {
@@ -89,118 +94,131 @@ export default class TabsAdvancedExample extends Component {
       }
     };
     return (
-      <SafeAreaView style={styles.flex}>
-        {loading && (
-          <Spinner
-            animation="fade"
-            overlayColor="rgba(0, 0, 0, 0.55)"
-            visible={loading}
-            textContent={'Loading...'}
-            textStyle={styles.spinnerTextStyle}
-          />
-        )}
-        <Container>
-          {search && (
-            <Item style={styles.item}>
-              <TouchableOpacity
-                style={styles.arrowButton}
-                onPress={() => {
-                  this.toggleSearch();
-                }}>
-                <Icon name="arrow-back" style={styles.backIcon} />
-              </TouchableOpacity>
+      <>
+        <SafeAreaView style={styles.flex}>
+          {/* <StatusBar hidden={false} color="#128c7e" /> */}
+          {loading && (
+            <Spinner
+              animation="fade"
+              overlayColor="rgba(0, 0, 0, 0.55)"
+              visible={loading}
+              textContent={'Loading...'}
+              textStyle={styles.spinnerTextStyle}
+            />
+          )}
+          <Container>
+            {search && (
+              <>
+                <StatusBar backgroundColor="black" barStyle="light-content" />
+                <Item style={styles.item}>
+                  <TouchableOpacity
+                    style={styles.arrowButton}
+                    onPress={() => {
+                      this.toggleSearch();
+                    }}>
+                    <Icon name="arrow-back" style={styles.backIcon} />
+                  </TouchableOpacity>
 
-              <Input
-                autoFocus={this.state.search ? true : false}
-                autoCapitalize="none"
-                getRef={input => {
-                  this.searchRef = input;
-                }}
-                placeholder="Search..."
-                returnKeyType="search"
-                onChangeText={text => {
-                  // this.search(text);
-                }}
-              />
-            </Item>
-          )}
-          {!search && (
-            <Header hasTabs style={styles.header}>
-              <Body>
-                <Text style={[styles.headerText, styles.white]}>
-                  Aya naon ?
-                </Text>
-              </Body>
-              <Right>
-                <TouchableOpacity
-                  onPress={() => {
-                    this.toggleSearch();
-                  }}>
-                  <Icon name="search" style={[styles.white, styles.icon]} />
-                </TouchableOpacity>
-                <Menu>
-                  <MenuTrigger>
-                    <Entypo
-                      name="dots-three-vertical"
-                      style={[styles.white, styles.icons]}
-                    />
-                  </MenuTrigger>
-                  <MenuOptions>
-                    <MenuOption onSelect={() => {}} style={styles.menu}>
-                      <Text>Friends Locations</Text>
-                    </MenuOption>
-                    <MenuOption onSelect={() => {}} style={styles.menu}>
-                      <Text>Profile</Text>
-                    </MenuOption>
-                    <MenuOption
-                      onSelect={() => {
-                        Alert.alert(
-                          'Sign out',
-                          'Are you sure?',
-                          [
-                            {
-                              text: 'No',
-                              onPress: () => {},
-                              style: 'cancel',
-                            },
-                            {
-                              text: 'Yes',
-                              onPress: () => {
-                                this.signOutUser();
+                  <Input
+                    autoFocus={this.state.search ? true : false}
+                    autoCapitalize="none"
+                    getRef={input => {
+                      this.searchRef = input;
+                    }}
+                    placeholder="Search..."
+                    returnKeyType="search"
+                    onChangeText={text => {
+                      // this.search(text);
+                    }}
+                  />
+                </Item>
+              </>
+            )}
+            {!search && (
+              <Header
+                hasTabs
+                style={styles.header}
+                androidStatusBarColor="#0E4C44">
+                <Body>
+                  <Text style={[styles.headerText, styles.white]}>
+                    Aya naon ?
+                  </Text>
+                </Body>
+                <Right>
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.toggleSearch();
+                    }}>
+                    <Icon name="search" style={[styles.white, styles.icon]} />
+                  </TouchableOpacity>
+                  <Menu>
+                    <MenuTrigger>
+                      <Entypo
+                        name="dots-three-vertical"
+                        style={[styles.white, styles.icons]}
+                      />
+                    </MenuTrigger>
+                    <MenuOptions>
+                      <MenuOption onSelect={() => {}} style={styles.menu}>
+                        <Text>Friends Locations</Text>
+                      </MenuOption>
+                      <MenuOption
+                        onSelect={() => {
+                          this.props.navigation.navigate('Profile');
+                        }}
+                        style={styles.menu}>
+                        <Text>Profile</Text>
+                      </MenuOption>
+                      <MenuOption
+                        onSelect={() => {
+                          Alert.alert(
+                            'Sign out',
+                            'Are you sure?',
+                            [
+                              {
+                                text: 'No',
+                                onPress: () => {},
+                                style: 'cancel',
                               },
-                            },
-                          ],
-                          {cancelable: false},
-                        );
-                      }}
-                      style={styles.menu}>
-                      <Text style={styles.red}>Logout</Text>
-                    </MenuOption>
-                  </MenuOptions>
-                </Menu>
-              </Right>
-            </Header>
-          )}
-          <Tabs>
-            <Tab
-              heading={
-                <TabHeading style={styles.header}>
-                  <Text style={styles.white}>Chat</Text>
-                </TabHeading>
-              }>
-              <Chats />
-            </Tab>
-            <Tab
-              heading={
-                <TabHeading style={styles.header}>
-                  <Text style={styles.white}>Friend List</Text>
-                </TabHeading>
-              }>
-              <Friends />
-            </Tab>
-          </Tabs>
-        </Container>
-      </SafeAreaView>
+                              {
+                                text: 'Yes',
+                                onPress: () => {
+                                  this.signOutUser();
+                                },
+                              },
+                            ],
+                            {cancelable: false},
+                          );
+                        }}
+                        style={styles.menu}>
+                        <Text style={styles.red}>Logout</Text>
+                      </MenuOption>
+                    </MenuOptions>
+                  </Menu>
+                </Right>
+              </Header>
+            )}
+            <Tabs>
+              <Tab
+                heading={
+                  <TabHeading style={styles.header}>
+                    <Text style={styles.white}>Chat</Text>
+                  </TabHeading>
+                }>
+                <Chats />
+              </Tab>
+              <Tab
+                heading={
+                  <TabHeading style={styles.header}>
+                    <Text style={styles.white}>Friend List</Text>
+                  </TabHeading>
+                }>
+                <Friends />
+              </Tab>
+            </Tabs>
+          </Container>
+        </SafeAreaView>
+      </>
     );
   }
 }

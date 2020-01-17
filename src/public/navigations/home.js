@@ -4,7 +4,7 @@ import LoginScreen from '../../screens/auth/Login';
 import ForgotPasswordScreen from '../../screens/auth/ForgotPassword';
 import RegisterScreen from '../../screens/auth/Register';
 import SplashScreen from '../../screens/SplashScreen';
-import HomeScreen from '../../screens/home/Home';
+import HomeScreen from './homeStack';
 
 const AppNavigator = createStackNavigator(
   {

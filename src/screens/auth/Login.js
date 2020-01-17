@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {SafeAreaView, StyleSheet, Image, Alert} from 'react-native';
+import {SafeAreaView, StyleSheet, Image, Alert, StatusBar} from 'react-native';
 import {
   Text,
   Button,
@@ -97,6 +97,7 @@ export default class Login extends Component {
     const {showPass, iconPass, loading} = this.state;
     return (
       <SafeAreaView style={[styles.flex]}>
+        <StatusBar backgroundColor="white" barStyle="dark-content" />
         {loading && (
           <Spinner
             animation="fade"

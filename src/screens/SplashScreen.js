@@ -1,5 +1,11 @@
 import React, {Component} from 'react';
-import {Text, View, StyleSheet, ActivityIndicator} from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  StatusBar,
+} from 'react-native';
 import {StackActions, NavigationActions} from 'react-navigation';
 import firebase from '../../android/configs/firebase';
 
@@ -23,6 +29,7 @@ export default class SplashScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
+        <StatusBar backgroundColor="white" barStyle="dark-content" />
         <Text>Loading</Text>
         <ActivityIndicator size="large" />
       </View>

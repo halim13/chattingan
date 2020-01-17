@@ -5,7 +5,7 @@ import {
   Image,
   TouchableOpacity,
   Alert,
-  // ActivityIndicator,
+  StatusBar,
 } from 'react-native';
 import {
   Text,
@@ -163,6 +163,7 @@ export default class Register extends Component {
     } = this.state;
     return (
       <SafeAreaView style={[styles.flex]}>
+        <StatusBar backgroundColor="white" barStyle="dark-content" />
         {loading && (
           <Spinner
             animation="fade"
