@@ -14,13 +14,6 @@ export default class ListAvatarExample extends Component {
   }
   onRefresh() {
     this.setState({isFetching: true}, async () => {
-      // await this.props.fetch(
-      //   this.props.pages.search,
-      //   this.props.pages.sort,
-      //   this.props.pages.order,
-      //   1,
-      //   this.props.pages.limit,
-      // );
       this.setState({isFetching: false});
     });
   }
@@ -39,7 +32,7 @@ export default class ListAvatarExample extends Component {
         id: '2',
         photo:
           'https://f0.pngfuel.com/png/683/60/man-profile-illustration-png-clip-art-thumbnail.png',
-        name: 'Halim Hasanudin',
+        name: 'Halim',
         message: 'Welcome to mobile legends bang bang',
         time: '13:43',
         notification: null,

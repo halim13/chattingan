@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Text, View, StyleSheet} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
-import firebase from './android/configs/firebase';
+import firebase from '../../android/configs/firebase';
 
 export default class Maps extends Component {
   componentDidMount() {

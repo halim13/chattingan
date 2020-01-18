@@ -1,10 +1,11 @@
 import React, {Component} from 'react';
 import {TouchableOpacity, StyleSheet} from 'react-native';
 import {ListItem, Thumbnail, Text, Left, Body} from 'native-base';
-export default class Friends extends Component {
+import {withNavigation} from 'react-navigation';
+class Friends extends Component {
   render() {
     const {item} = this.props;
-    // const id = item.id;
+    const id = item.id;
     const name = item.name;
     const photo = item.photo;
     const description = item.description;
@@ -12,10 +13,27 @@ export default class Friends extends Component {
       <ListItem thumbnail>
         <TouchableOpacity
           style={styles.touch}
-          onPress={() => {}}
+          onPress={() => {
+            this.props.navigation.navigate('Friend', {
+              id,
+              name,
+              photo,
+              description,
+            });
+          }}
           onLongPress={() => {}}>
           <Left>
-            <Thumbnail square source={{uri: `${photo}`}} />
+            {photo ? (
+              <Thumbnail square source={{uri: `${photo}`}} />
+            ) : (
+              <Thumbnail
+                square
+                source={{
+                  uri:
+                    'https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png',
+                }}
+              />
+            )}
           </Left>
           <Body>
             <Text>{name}</Text>
@@ -46,3 +64,5 @@ const styles = StyleSheet.create({
   right: {justifyContent: 'center', alignItems: 'center'},
   textNotification: {fontSize: 12, color: '#fff', alignSelf: 'center'},
 });
+
+export default withNavigation(Friends)

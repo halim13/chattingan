@@ -12,6 +12,7 @@ import firebase from '../../android/configs/firebase';
 export default class SplashScreen extends Component {
   checkLogin = () => {
     firebase.auth().onAuthStateChanged(user => {
+      // console.warn(user);
       this.setState({hasFetched: false});
       const resetAction = StackActions.reset({
         index: 0,
@@ -29,7 +30,7 @@ export default class SplashScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <StatusBar backgroundColor="white" barStyle="dark-content" />
+        <StatusBar backgroundColor="grey" barStyle="dark-content" />
         <Text>Loading</Text>
         <ActivityIndicator size="large" />
       </View>

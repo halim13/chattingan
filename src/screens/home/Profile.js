@@ -9,7 +9,6 @@ import {
   Right,
   View,
   Button,
-  Content,
   List,
   ListItem,
   Input,
@@ -25,14 +24,19 @@ import {
   Dimensions,
   TextInput,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
-import Modal from 'react-native-modal';
 import Entypo from 'react-native-vector-icons/Entypo';
 import Spinner from 'react-native-loading-spinner-overlay';
 import firebase from '../../../android/configs/firebase';
-import {StackActions, NavigationActions} from 'react-navigation';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import RBSheet from 'react-native-raw-bottom-sheet';
+import ImagePicker from 'react-native-image-picker';
+import RNFetchBlob from 'react-native-fetch-blob';
+const Blob = RNFetchBlob.polyfill.Blob;
+const fs = RNFetchBlob.fs;
+window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
+window.Blob = Blob;
 
 export default class TabsAdvancedExample extends Component {
   constructor() {
@@ -40,9 +44,11 @@ export default class TabsAdvancedExample extends Component {
     this.state = {
       currentUser: null,
       loading: false,
+      isUpload: false,
       modal: false,
       name: '',
       description: '',
+      email: '',
       phone: '',
       photo: '',
       location: '',
@@ -51,7 +57,6 @@ export default class TabsAdvancedExample extends Component {
       nameEdit: '',
       descriptionEdit: '',
       phoneEdit: '',
-      photoEdit: '',
       locationEdit: '',
       latEdit: '',
       lonEdit: '',
@@ -104,7 +109,6 @@ export default class TabsAdvancedExample extends Component {
       locationEdit: location,
       latEdit: lat,
       lonEdit: lon,
-      photoEdit: photo,
     });
   };
   componentDidMount() {
@@ -118,7 +122,8 @@ export default class TabsAdvancedExample extends Component {
       nameEdit,
       descriptionEdit,
       phoneEdit,
-      photoEdit,
+      photo,
+      email,
       locationEdit,
       latEdit,
       lonEdit,
@@ -131,9 +136,10 @@ export default class TabsAdvancedExample extends Component {
         .set(
           {
             name: nameEdit,
+            email,
             description: descriptionEdit,
             phone: phoneEdit,
-            photo: photoEdit,
+            photo: photo,
             location: {city: locationEdit, lat: latEdit, lon: lonEdit},
           },
           function(error) {
@@ -144,7 +150,6 @@ export default class TabsAdvancedExample extends Component {
             } else {
               // Data saved successfully!
               status = true;
-              // console.warn('success update name');
             }
           },
         );
@@ -164,10 +169,11 @@ export default class TabsAdvancedExample extends Component {
       nameEdit,
       descriptionEdit,
       phoneEdit,
-      photoEdit,
+      photo,
       locationEdit,
       latEdit,
       lonEdit,
+      email,
     } = this.state;
     const id = currentUser.uid;
     if (descriptionEdit && descriptionEdit !== description) {
@@ -176,10 +182,11 @@ export default class TabsAdvancedExample extends Component {
         .ref('users/' + id)
         .set(
           {
+            email,
             name: nameEdit,
             description: descriptionEdit,
             phone: phoneEdit,
-            photo: photoEdit,
+            photo: photo,
             location: {city: locationEdit, lat: latEdit, lon: lonEdit},
           },
           function(error) {
@@ -190,7 +197,6 @@ export default class TabsAdvancedExample extends Component {
             } else {
               // Data saved successfully!
               status = true;
-              // console.warn('success update name');
             }
           },
         );
@@ -210,10 +216,11 @@ export default class TabsAdvancedExample extends Component {
       nameEdit,
       descriptionEdit,
       phoneEdit,
-      photoEdit,
+      photo,
       locationEdit,
       latEdit,
       lonEdit,
+      email,
     } = this.state;
     const id = currentUser.uid;
     if (phoneEdit && phoneEdit !== phone) {
@@ -222,10 +229,11 @@ export default class TabsAdvancedExample extends Component {
         .ref('users/' + id)
         .set(
           {
+            email,
             name: nameEdit,
             description: descriptionEdit,
             phone: phoneEdit,
-            photo: photoEdit,
+            photo: photo,
             location: {city: locationEdit, lat: latEdit, lon: lonEdit},
           },
           function(error) {
@@ -236,7 +244,6 @@ export default class TabsAdvancedExample extends Component {
             } else {
               // Data saved successfully!
               status = true;
-              // console.warn('success update name');
             }
           },
         );
@@ -248,6 +255,102 @@ export default class TabsAdvancedExample extends Component {
       this.setState({phone: phoneEdit});
     }
   };
+
+  selectImage = async () => {
+    ImagePicker.showImagePicker(
+      {
+        noData: true,
+        mediaType: 'photo',
+        allowsEditing: true,
+      },
+      response => {
+        console.log('response = ', response);
+        if (response.didCancel) {
+          console.log('user cancelled image picker');
+        } else if (response.error) {
+          console.log('ImagePicker error: ', response.error);
+        } else if (response.customButton) {
+          console.log('user tapped custom button', response.customButton);
+        } else {
+          this.setState({
+            photo: response.uri,
+            filename: response.fileName,
+            filesize: response.fileSize,
+          });
+          const fileSize = response.fileSize;
+          const size = 1 * 1024 * 1024;
+          if (fileSize >= size) {
+            this.setState({
+              // photo: `${config.BASE_URL}/companies/${this.props.company.logo}`,
+            });
+            Alert.alert('File Too big, choose image under 1MB');
+          } else {
+            const fileType = response.fileName.split('.')[1];
+            this.setState({isUpload: true});
+            this.uploadImage(response.uri, fileType)
+              .then(url => {
+                this.uploadPhoto();
+                this.setState({photo: url, isUpload: false});
+              })
+              .catch(() => {
+                this.setState({isUpload: false});
+              });
+          }
+        }
+      },
+    );
+  };
+  uploadImage(uri, fileType, mime = 'application/octet-stream') {
+    return new Promise((resolve, reject) => {
+      const uploadUri =
+        Platform.OS === 'ios' ? uri.replace('file://', '') : uri;
+      let uploadBlob = null;
+      // let name = new Date().getTime();
+      let name = firebase.auth().currentUser.uid;
+
+      const imageRef = firebase
+        .storage()
+        .ref('photos')
+        .child(`${name}.${fileType}`);
+
+      fs.readFile(uploadUri, 'base64')
+        .then(data => {
+          return Blob.build(data, {type: `${mime};BASE64`});
+        })
+        .then(blob => {
+          uploadBlob = blob;
+          return imageRef.put(blob, {contentType: mime});
+        })
+        .then(() => {
+          uploadBlob.close();
+          return imageRef.getDownloadURL();
+        })
+        .then(url => {
+          resolve(url);
+        })
+        .catch(error => {
+          reject(error);
+        });
+    });
+  }
+  uploadPhoto() {
+    const id = firebase.auth().currentUser.uid;
+    firebase
+      .database()
+      .ref('users/' + id)
+      .set({
+        email: this.state.email,
+        photo: this.state.photo,
+        name: this.state.name,
+        description: this.state.description,
+        phone: this.state.phone,
+        location: {
+          city: this.state.location,
+          lat: this.state.lat,
+          lon: this.state.lon,
+        },
+      });
+  }
   render() {
     const {
       loading,
@@ -256,12 +359,14 @@ export default class TabsAdvancedExample extends Component {
       description,
       phone,
       email,
+      photo,
       location,
       nameEdit,
       descriptionEdit,
       phoneEdit,
       emailEdit,
       locationEdit,
+      isUpload,
     } = this.state;
     const deviceWidth = Dimensions.get('window').width;
     const deviceHeight =
@@ -303,17 +408,40 @@ export default class TabsAdvancedExample extends Component {
               </Header>
               <View>
                 <View style={styles.thumbnail}>
-                  <ImageBackground
-                    imageStyle={{borderRadius: 100}}
-                    style={styles.thumbnail}
-                    source={{
-                      uri:
-                        'https://f0.pngfuel.com/png/683/60/man-profile-illustration-png-clip-art-thumbnail.png',
-                    }}>
-                    <Button style={styles.iconCamera}>
-                      <Entypo name="camera" style={styles.camera} />
-                    </Button>
-                  </ImageBackground>
+                  {!isUpload && currentUser && photo !== '' && (
+                    <ImageBackground
+                      imageStyle={{borderRadius: 100}}
+                      style={styles.thumbnail}
+                      source={{
+                        uri: `${photo}`,
+                      }}>
+                      <Button
+                        style={styles.iconCamera}
+                        onPress={this.selectImage}>
+                        <Entypo name="camera" style={styles.camera} />
+                      </Button>
+                    </ImageBackground>
+                  )}
+                  {!isUpload && currentUser && photo === '' && (
+                    <ImageBackground
+                      imageStyle={{borderRadius: 100}}
+                      style={styles.thumbnail}
+                      source={{
+                        uri:
+                          'https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png',
+                      }}>
+                      <Button
+                        style={styles.iconCamera}
+                        onPress={this.selectImage}>
+                        <Entypo name="camera" style={styles.camera} />
+                      </Button>
+                    </ImageBackground>
+                  )}
+                  {isUpload && (
+                    <View style={styles.thumbnails}>
+                      <ActivityIndicator size="large" />
+                    </View>
+                  )}
                 </View>
                 <List>
                   <ListItem>
@@ -324,7 +452,7 @@ export default class TabsAdvancedExample extends Component {
                       <Text style={[styles.descriptionText, styles.grey]}>
                         Name
                       </Text>
-                      <Text style={[styles.descriptionText]} numberOfLines={1}>
+                      <Text style={[styles.descriptionText]}>
                         {currentUser && name}
                       </Text>
                     </View>
@@ -345,7 +473,7 @@ export default class TabsAdvancedExample extends Component {
                       <Text style={[styles.descriptionText, styles.grey]}>
                         Description
                       </Text>
-                      <Text style={[styles.descriptionText]} numberOfLines={1}>
+                      <Text style={[styles.descriptionText]}>
                         {currentUser && description}
                       </Text>
                     </View>
@@ -366,7 +494,7 @@ export default class TabsAdvancedExample extends Component {
                       <Text style={[styles.descriptionText, styles.grey]}>
                         Phone
                       </Text>
-                      <Text style={[styles.descriptionText]} numberOfLines={1}>
+                      <Text style={[styles.descriptionText]}>
                         {currentUser && phone}
                       </Text>
                     </View>
@@ -387,12 +515,13 @@ export default class TabsAdvancedExample extends Component {
                       <Text style={[styles.descriptionText, styles.grey]}>
                         Location
                       </Text>
-                      <Text style={[styles.descriptionText]} numberOfLines={1}>
+                      <Text style={[styles.descriptionText]}>
                         {currentUser && location}
                       </Text>
                     </View>
                     <View>
-                      <TouchableOpacity>
+                      <TouchableOpacity onPress={() => {
+                          this.props.navigation.navigate('Maps', currentUser);}}>
                         <MaterialIcons name="edit" style={[styles.iconRight]} />
                       </TouchableOpacity>
                     </View>
@@ -405,7 +534,7 @@ export default class TabsAdvancedExample extends Component {
                       <Text style={[styles.descriptionText, styles.grey]}>
                         Email
                       </Text>
-                      <Text style={[styles.descriptionText]} numberOfLines={1}>
+                      <Text style={[styles.descriptionText]}>
                         {currentUser && currentUser.email}
                       </Text>
                     </View>
@@ -419,6 +548,63 @@ export default class TabsAdvancedExample extends Component {
                     </View>
                   </ListItem>
                 </List>
+                <Button
+                  danger
+                  style={styles.center}
+                  onPress={() => {
+                    Alert.alert(
+                      'Delete Account',
+                      'Are you sure ?',
+                      [
+                        {
+                          text: 'No',
+                          // onPress: () => console.log('Cancel Pressed'),
+                          style: 'cancel',
+                        },
+                        {
+                          text: 'Yes',
+                          onPress: () => {
+                            // let user = firebase.auth().currentUser;
+                            // let credential;
+                            // user
+                            //   .reauthenticateWithCredential(credential)
+                            //   .then(function() {
+                            //     // User re-authenticated.
+                            //     user.delete().then(
+                            //       function() {
+                            //         // User deleted.
+                            //         console.warn('Successfully deleted user');
+                            //         const resetAction = StackActions.reset({
+                            //           index: 0,
+                            //           actions: [
+                            //             NavigationActions.navigate({
+                            //               routeName: 'Login',
+                            //             }),
+                            //           ],
+                            //         });
+                            //         this.props.navigation.dispatch(resetAction);
+                            //       },
+                            //       function(error) {
+                            //         // An error happened.
+                            //         console.warn('Error deleting user:', error);
+                            //       },
+                            //     );
+                            //   })
+                            //   .catch(function(error) {
+                            //     // An error happened.
+                            //     console.warn(
+                            //       'Error reauthenticated user:',
+                            //       error,
+                            //     );
+                            //   });
+                          },
+                        },
+                      ],
+                      {cancelable: false},
+                    );
+                  }}>
+                  <Text>Delete Account</Text>
+                </Button>
                 {/* name */}
                 <RBSheet
                   ref={ref => {
@@ -621,6 +807,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 3,
   },
+  center: {justifyContent: 'center'},
   textButtonModal: {
     color: '#075E54',
     fontWeight: 'bold',
@@ -631,12 +818,20 @@ const styles = StyleSheet.create({
     borderBottomColor: 'grey',
   },
   thumbnail: {
-    width: 179,
-    height: 179,
+    width: 150,
+    height: 150,
+    alignSelf: 'center',
+    marginTop: 20,
+    borderRadius: 100,
+    justifyContent: 'flex-end',
+  },
+  thumbnails: {
+    width: 150,
+    height: 150,
     alignSelf: 'center',
     marginTop: 30,
     borderRadius: 100,
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
   },
   list: {
     marginTop: 30,

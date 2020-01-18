@@ -2,6 +2,7 @@ import firebase from 'firebase';
 import 'firebase/auth';
 import 'firebase/database';
 import 'firebase/storage';
+import 'firebase/firestore';
 import {
   API_KEY,
   AUTH_DOMAIN,
@@ -13,7 +14,9 @@ import {
   MEASSUREMENT_ID,
 } from 'react-native-dotenv';
 
-var firebaseConfig = {
+const settings = {timestampsInSnapshots: true};
+
+const firebaseConfig = {
   apiKey: API_KEY,
   authDomain: AUTH_DOMAIN,
   databaseURL: DATABASE_URL,

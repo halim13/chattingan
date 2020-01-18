@@ -20,7 +20,7 @@ import {
 } from 'native-base';
 import Spinner from 'react-native-loading-spinner-overlay';
 import {StackActions, NavigationActions} from 'react-navigation';
-import firebase2 from '../../../android/configs/firebase';
+import firebase from '../../../android/configs/firebase';
 import {validationService} from '../../public/validation/service';
 
 export default class Register extends Component {
@@ -53,6 +53,9 @@ export default class Register extends Component {
       name: '',
       email: '',
       password: '',
+      lat: '',
+      lon: '',
+      city: '',
       passwordConfirm: '',
       showPass: true,
       iconPass: 'eye',
@@ -77,19 +80,21 @@ export default class Register extends Component {
     ) {
       this.setState({loading: true});
       try {
-        await firebase2
+        await firebase
           .auth()
           .createUserWithEmailAndPassword(
             this.state.email,
             this.state.password,
           );
-        const id = firebase2.auth().currentUser.uid;
-        const {name} = this.state;
-        firebase2
+        const id = firebase.auth().currentUser.uid;
+        const email = firebase.auth().currentUser.email;
+        const {name, lat, lon, city} = this.state;
+        firebase
           .database()
           .ref('users/' + id)
           .set({
             name,
+            email,
             photo: '',
             about: '',
             phone: '',
@@ -100,12 +105,12 @@ export default class Register extends Component {
             },
           });
         this.setState({loading: false});
-
         const resetAction = StackActions.reset({
           index: 0,
           actions: [NavigationActions.navigate({routeName: 'Login'})],
         });
         this.props.navigation.dispatch(resetAction);
+        firebase.auth().signOut();
       } catch (error) {
         this.setState({
           errorMessage: error.code,

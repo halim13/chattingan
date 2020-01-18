@@ -1,11 +1,14 @@
 import React, {Component} from 'react';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import {ListItem, Left, Body, Right, Thumbnail, Text, View} from 'native-base';
-
-export default class ListChat extends Component {
+import {withNavigation} from 'react-navigation';
+class ListChat extends Component {
+  constructor(props) {
+    super(props);
+  }
   render() {
     const {item} = this.props;
-    // const id = item.id;
+    const id = item.id;
     const notification = item.notification;
     const name = item.name;
     const photo = item.photo;
@@ -15,7 +18,9 @@ export default class ListChat extends Component {
       <ListItem avatar style={styles.listItem}>
         <TouchableOpacity
           style={styles.touch}
-          onPress={() => {}}
+          onPress={() => {
+            this.props.navigation.navigate('Chat', {id, name, photo});
+          }}
           onLongPress={() => {}}>
           <Left>
             <Thumbnail
@@ -63,3 +68,4 @@ const styles = StyleSheet.create({
   right: {justifyContent: 'center', alignItems: 'center'},
   textNotification: {fontSize: 12, color: '#fff', alignSelf: 'center'},
 });
+export default withNavigation(ListChat);

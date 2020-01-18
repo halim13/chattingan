@@ -4,10 +4,17 @@ import LoginScreen from '../../screens/auth/Login';
 import ForgotPasswordScreen from '../../screens/auth/ForgotPassword';
 import RegisterScreen from '../../screens/auth/Register';
 import SplashScreen from '../../screens/SplashScreen';
+import Maps from '../../compnents/Maps';
 import HomeScreen from './homeStack';
 
 const AppNavigator = createStackNavigator(
   {
+    Maps: {
+      screen: Maps,
+      navigationOptions: {
+        headerShown: false,
+      },
+    },
     SplashScreen: {
       screen: SplashScreen,
       navigationOptions: {
