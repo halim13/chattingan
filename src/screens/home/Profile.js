@@ -520,8 +520,10 @@ export default class TabsAdvancedExample extends Component {
                       </Text>
                     </View>
                     <View>
-                      <TouchableOpacity onPress={() => {
-                          this.props.navigation.navigate('Maps', currentUser);}}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          this.props.navigation.navigate('Maps', currentUser);
+                        }}>
                         <MaterialIcons name="edit" style={[styles.iconRight]} />
                       </TouchableOpacity>
                     </View>

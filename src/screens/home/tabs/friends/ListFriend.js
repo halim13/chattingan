@@ -65,4 +65,4 @@ const styles = StyleSheet.create({
   textNotification: {fontSize: 12, color: '#fff', alignSelf: 'center'},
 });
 
-export default withNavigation(Friends)
+export default withNavigation(Friends);
