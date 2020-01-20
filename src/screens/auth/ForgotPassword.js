@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {SafeAreaView, StyleSheet, Image} from 'react-native';
+import {SafeAreaView, StyleSheet, Image, TouchableOpacity} from 'react-native';
 import {
   Text,
   Button,
@@ -11,7 +11,6 @@ import {
   Icon,
   View,
 } from 'native-base';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 import {StackActions, NavigationActions} from 'react-navigation';
 import firebase from '../../../android/configs/firebase';
 import Spinner from 'react-native-loading-spinner-overlay';
