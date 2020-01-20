@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ActivityIndicator,
   StatusBar,
+  Image,
 } from 'react-native';
 import {StackActions, NavigationActions} from 'react-navigation';
 import firebase from '../../android/configs/firebase';
@@ -31,6 +32,11 @@ export default class SplashScreen extends Component {
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor="grey" barStyle="dark-content" />
+
+        <Image
+          style={[styles.center, styles.image]}
+          source={require('../public/images/logo.png')}
+        />
         <Text>Loading</Text>
         <ActivityIndicator size="large" />
       </View>

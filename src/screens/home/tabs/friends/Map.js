@@ -175,7 +175,7 @@ export default class TabsAdvancedExample extends Component {
     this.setState({
       loading: false,
     });
-    console.log(this.state.region)
+    console.log(this.state.region);
   };
   getUser = async () => {
     const {currentUser} = firebase.auth();
@@ -231,7 +231,7 @@ export default class TabsAdvancedExample extends Component {
   }
 
   render() {
-    const {loading, currentUser, city, lat, lon, historyMessages, name} = this.state;
+    const {loading, currentUser, city, lat, lon, historyMessages} = this.state;
     return (
       <>
         <SafeAreaView style={styles.flex}>
@@ -282,7 +282,7 @@ export default class TabsAdvancedExample extends Component {
                 style={styles.flex}
                 initialRegion={this.state.region}>
                 <Marker
-                  title={name}
+                  title="arkademy"
                   coordinate={{
                     latitude: Number(lat),
                     longitude: Number(lon),

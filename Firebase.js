@@ -9,7 +9,6 @@ import {
   APP_ID,
   MEASSUREMENT_ID,
 } from 'react-native-dotenv';
-import moment from 'moment';
 
 class Firebase {
   constructor() {
@@ -41,15 +40,75 @@ class Firebase {
       return true;
     });
   };
+  getChatHistory = history => {
+    const uid = firebase.auth().currentUser.uid;
+    firebase
+      .database()
+      .ref('/users/' + uid + '/historyMessages')
+      .once('value')
+      .then(result => {
+        // console.log(result);
+        const records = [];
+        result.forEach(res => {
+          const messageId = res.val().id;
+          firebase
+            .database()
+            .ref('/messages/' + messageId)
+            .limitToLast(1)
+            .once('value')
+            .then(res_ => {
+              res_.forEach(_res => {
+                records.push(_res.val());
+              });
+              // console.log(records);
+              history(records);
+            });
+        });
+      });
+  };
 
   send = messages => {
+    const uid = firebase.auth().currentUser.uid;
     messages.forEach(item => {
       const message = {
         text: item.text,
         timestamp: firebase.database.ServerValue.TIMESTAMP,
         user: item.user,
       };
-      this.db.push(message);
+
+      const id = item.user.cuid;
+      let messageId = uid + '_' + id;
+      const searchMessage = id + '_' + uid;
+      firebase
+        .database()
+        .ref('/messages/')
+        .child(searchMessage)
+        .once('value', snapshot => {
+          if (snapshot.val()) {
+            messageId = searchMessage;
+          }
+        });
+      firebase
+        .database()
+        .ref('messages/' + messageId + '/')
+        .push(message)
+        .then(_ => {
+          firebase
+            .database()
+            .ref('users/' + uid + '/historyMessages/' + messageId + '/')
+            .set({
+              id: messageId,
+            })
+            .then(__ => {
+              firebase
+                .database()
+                .ref('users/' + id + '/historyMessages/' + messageId + '/')
+                .set({
+                  id: messageId,
+                });
+            });
+        });
+      // this.db.push(message);
     });
   };
 
@@ -57,7 +116,6 @@ class Firebase {
     const {user, text, timestamp} = message.val();
     const {key: _id} = message;
     const createdAt = new Date(timestamp);
-    // const time = moment(timestamp, 'HH:MM').format('HH:mm');
 
     return {
       _id,
@@ -67,8 +125,23 @@ class Firebase {
     };
   };
 
-  get = callback => {
-    this.db.on('child_added', snapshot => callback(this.parse(snapshot)));
+  get = async (callback, id) => {
+    const uid = firebase.auth().currentUser.uid;
+    let messageId = uid + '_' + id;
+    const searchMessage = id + '_' + uid;
+    await firebase
+      .database()
+      .ref('/messages/')
+      .child(searchMessage)
+      .once('value', snapshot => {
+        if (snapshot.val()) {
+          messageId = searchMessage;
+        }
+      });
+    firebase
+      .database()
+      .ref('messages/' + messageId)
+      .on('child_added', snapshot => callback(this.parse(snapshot)));
   };
 
   off() {
@@ -77,11 +150,15 @@ class Firebase {
 
   get db() {
     const uid = this.uid;
-    return firebase.database().ref(`messages/${uid}`);
+    return firebase.database().ref(`messages/`);
   }
 
   get uid() {
     return (firebase.auth().currentUser || {}).uid;
+  }
+
+  get FriendChat() {
+    return this.parse.user._id;
   }
 }
 

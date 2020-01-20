@@ -141,7 +141,7 @@ export default class TabsAdvancedExample extends Component {
                 androidStatusBarColor="#0E4C44">
                 <Body>
                   <Text style={[styles.headerText, styles.white]}>
-                    Aya naon ?
+                    Chattingan
                   </Text>
                 </Body>
                 <Right>

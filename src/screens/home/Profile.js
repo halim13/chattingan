@@ -33,6 +33,8 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import RBSheet from 'react-native-raw-bottom-sheet';
 import ImagePicker from 'react-native-image-picker';
 import RNFetchBlob from 'react-native-fetch-blob';
+import {NativeModules} from 'react-native';
+// const RNFetchBlob = NativeModules.RNFetchBlob;
 const Blob = RNFetchBlob.polyfill.Blob;
 const fs = RNFetchBlob.fs;
 window.XMLHttpRequest = RNFetchBlob.polyfill.XMLHttpRequest;
@@ -54,6 +56,7 @@ export default class TabsAdvancedExample extends Component {
       location: '',
       lat: '',
       lon: '',
+      historyMessages: null,
       nameEdit: '',
       descriptionEdit: '',
       phoneEdit: '',
@@ -77,6 +80,7 @@ export default class TabsAdvancedExample extends Component {
     let location = '';
     let lat = '';
     let lon = '';
+    let historyMessages = '';
     await firebase
       .database()
       .ref('/users/' + id)
@@ -85,6 +89,8 @@ export default class TabsAdvancedExample extends Component {
         name = (snapshot.val() && snapshot.val().name) || '';
         photo = (snapshot.val() && snapshot.val().photo) || '';
         description = (snapshot.val() && snapshot.val().description) || '';
+        historyMessages =
+          (snapshot.val() && snapshot.val().historyMessages) || '';
         phone = (snapshot.val() && snapshot.val().phone) || '';
         email = currentUser.email || '';
         location = (snapshot.val() && snapshot.val().location.city) || '';
@@ -100,6 +106,7 @@ export default class TabsAdvancedExample extends Component {
       email,
       location,
       photo,
+      historyMessages,
       lat,
       lon,
       nameEdit: name,
@@ -123,6 +130,7 @@ export default class TabsAdvancedExample extends Component {
       descriptionEdit,
       phoneEdit,
       photo,
+      historyMessages,
       email,
       locationEdit,
       latEdit,
@@ -140,6 +148,7 @@ export default class TabsAdvancedExample extends Component {
             description: descriptionEdit,
             phone: phoneEdit,
             photo: photo,
+            historyMessages,
             location: {city: locationEdit, lat: latEdit, lon: lonEdit},
           },
           function(error) {
@@ -173,6 +182,7 @@ export default class TabsAdvancedExample extends Component {
       locationEdit,
       latEdit,
       lonEdit,
+      historyMessages,
       email,
     } = this.state;
     const id = currentUser.uid;
@@ -187,6 +197,7 @@ export default class TabsAdvancedExample extends Component {
             description: descriptionEdit,
             phone: phoneEdit,
             photo: photo,
+            historyMessages,
             location: {city: locationEdit, lat: latEdit, lon: lonEdit},
           },
           function(error) {
@@ -219,6 +230,7 @@ export default class TabsAdvancedExample extends Component {
       photo,
       locationEdit,
       latEdit,
+      historyMessages,
       lonEdit,
       email,
     } = this.state;
@@ -234,6 +246,7 @@ export default class TabsAdvancedExample extends Component {
             description: descriptionEdit,
             phone: phoneEdit,
             photo: photo,
+            historyMessages,
             location: {city: locationEdit, lat: latEdit, lon: lonEdit},
           },
           function(error) {
@@ -342,6 +355,7 @@ export default class TabsAdvancedExample extends Component {
         email: this.state.email,
         photo: this.state.photo,
         name: this.state.name,
+        historyMessages: this.state.historyMessages,
         description: this.state.description,
         phone: this.state.phone,
         location: {
@@ -366,15 +380,10 @@ export default class TabsAdvancedExample extends Component {
       phoneEdit,
       emailEdit,
       locationEdit,
+      historyMessages,
       isUpload,
     } = this.state;
     const deviceWidth = Dimensions.get('window').width;
-    const deviceHeight =
-      Platform.OS === 'ios'
-        ? Dimensions.get('window').height
-        : require('react-native-extra-dimensions-android').get(
-            'REAL_WINDOW_HEIGHT',
-          );
     return (
       <>
         <SafeAreaView style={styles.flex}>
@@ -397,7 +406,7 @@ export default class TabsAdvancedExample extends Component {
                     }}>
                     <Icon
                       name="arrow-back"
-                      style={[styles.white, styles.icon]}
+                      style={[styles.white, styles.icons]}
                     />
                   </TouchableOpacity>
                 </Left>
@@ -863,7 +872,7 @@ const styles = StyleSheet.create({
   iconRight: {fontSize: 25, color: '#888', marginTop: 20, marginLeft: 20},
   icons: {
     fontSize: 20,
-    paddingHorizontal: 10,
+    paddingHorizontal: 5,
     marginLeft: 5,
     alignItems: 'center',
   },

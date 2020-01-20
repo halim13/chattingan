@@ -23,6 +23,7 @@ import {
 } from 'native-base';
 import {GiftedChat} from 'react-native-gifted-chat';
 import Fire from '../../../../../Firebase';
+import firebase from '../../../../../android/configs/firebase';
 
 export default class Chat extends Component {
   // static navigationOptions = ({navigation}) => ({
@@ -34,10 +35,12 @@ export default class Chat extends Component {
   };
 
   componentDidMount() {
-    Fire.get(message =>
-      this.setState(previous => ({
-        messages: GiftedChat.append(previous.messages, message),
-      })),
+    Fire.get(
+      message =>
+        this.setState(previous => ({
+          messages: GiftedChat.append(previous.messages, message),
+        })),
+      this.props.navigation.state.params.id,
     );
   }
 
@@ -47,38 +50,31 @@ export default class Chat extends Component {
 
   get user() {
     const id = this.props.navigation.state.params.id;
+    const names = this.props.navigation.state.params.names;
+    const photos = this.props.navigation.state.params.photos;
     return {
-      name: this.props.navigation.state.params.name,
-      _id: id,
+      avatar: photos,
+      name: names,
+      _id: Fire.uid,
+      cuid: id,
     };
   }
 
   render() {
-    // const id = this.props.navigation.state.params.id;
     const name = this.props.navigation.state.params.name;
     const photo = this.props.navigation.state.params.photo;
+    const id = this.props.navigation.state.params.id;
 
     const chat = (
       <GiftedChat
         messages={this.state.messages}
         onSend={Fire.send}
         user={this.user}
+        cuid={id}
       />
     );
-
-    // if (Platform.OS === 'android') {
-    //   return (
-    //     <KeyboardAvoidingView
-    //       style={{flex: 1}}
-    //       behavior="padding"
-    //       keyboardVerticalOffset={30}
-    //       enabled>
-    //       {chat}
-    //     </KeyboardAvoidingView>
-    //   );
-    // }
     return (
-      <SafeAreaView style={{flex: 1}}>
+      <SafeAreaView style={styles.flex}>
         <Header style={styles.header} androidStatusBarColor="#0E4C44">
           <View>
             <TouchableOpacity
@@ -89,7 +85,17 @@ export default class Chat extends Component {
             </TouchableOpacity>
           </View>
           <View>
-            <Thumbnail small source={{uri: `${photo}`}} />
+            {photo ? (
+              <Thumbnail small source={{uri: `${photo}`}} />
+            ) : (
+              <Thumbnail
+                small
+                source={{
+                  uri:
+                    'https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png',
+                }}
+              />
+            )}
           </View>
           <View>
             <Text style={[styles.headerText, styles.white]} numberOfLines={1}>
@@ -105,6 +111,7 @@ export default class Chat extends Component {
 }
 
 const styles = StyleSheet.create({
+  flex: {flex: 1},
   header: {backgroundColor: '#075E54', alignItems: 'center'},
   headerText: {fontSize: 20, marginLeft: 10, fontWeight: 'bold'},
   white: {color: 'white'},

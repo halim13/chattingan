@@ -9,21 +9,30 @@ import {
   Right,
   View,
   Button,
+  List,
+  ListItem,
+  Input,
 } from 'native-base';
 import {
   SafeAreaView,
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Image,
   ImageBackground,
+  Platform,
   Dimensions,
+  TextInput,
+  ScrollView,
   ActivityIndicator,
   PermissionsAndroid,
+  ToastAndroid,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Spinner from 'react-native-loading-spinner-overlay';
 import firebase from '../../../android/configs/firebase';
+import axios from 'axios';
 import MapView, {
   PROVIDER_GOOGLE,
   Marker,
@@ -33,9 +42,9 @@ import MapView, {
 import GetLocation from 'react-native-get-location';
 import Geocoder from 'react-native-geocoding';
 import Geolocation from 'react-native-geolocation-service';
+const screen = Dimensions.get('window');
 
-const {width, height} = Dimensions.get('window');
-const ASPECT_RATIO = width / height;
+const ASPECT_RATIO = screen.width / screen.height;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
@@ -50,65 +59,57 @@ export default class TabsAdvancedExample extends Component {
       email: '',
       phone: '',
       photo: '',
-      city: '',
-      historyMessages: '',
+      location: '',
       lat: '',
       lon: '',
       error: '',
-      region: {
-        latitude: null,
-        longitude: null,
-        latitudeDelta: null,
-        longitudeDelta: null,
-      },
     };
   }
 
-  changeLocation = async value => {
-    let status = false;
+  getUser = async () => {
     const {currentUser} = firebase.auth();
-    const {
+    const id = currentUser.uid;
+    let name = '';
+    let description = '';
+    let phone = '';
+    let photo = '';
+    let email = '';
+    let location = '';
+    let lat = '';
+    let lon = '';
+    await firebase
+      .database()
+      .ref('/users/' + id)
+      .once('value')
+      .then(function(snapshot) {
+        name = (snapshot.val() && snapshot.val().name) || '';
+        photo = (snapshot.val() && snapshot.val().photo) || '';
+        description = (snapshot.val() && snapshot.val().description) || '';
+        phone = (snapshot.val() && snapshot.val().phone) || '';
+        email = currentUser.email || '';
+        location = (snapshot.val() && snapshot.val().location.city) || '';
+        lat = (snapshot.val() && snapshot.val().location.lat) || '';
+        lon = (snapshot.val() && snapshot.val().location.lon) || '';
+      });
+    // console.log(id);
+    this.setState({
+      currentUser,
       name,
       description,
       phone,
-      photo,
       email,
-      city,
+      location,
+      photo,
       lat,
       lon,
-      historyMessages,
-    } = this.state;
-    const id = currentUser.uid;
-    await firebase
-      .database()
-      .ref('users/' + id)
-      .set(
-        {
-          name,
-          historyMessages,
-          email,
-          description,
-          phone,
-          photo,
-          location: {city, lat, lon},
-        },
-        function(error) {
-          if (error) {
-            status = false;
-            // The write failed...
-            console.log(error);
-          } else {
-            // Data saved successfully!
-            status = true;
-          }
-        },
-      );
-    if (status) {
-      Alert.alert('Succes', 'Your location has been updated');
-    } else {
-      Alert.alert('Failed', 'your location not updated');
-    }
+    });
   };
+  async componentDidMount() {
+    await this.getUser();
+    await this.requestMapsPermission();
+    // this.getLocation();
+  }
+
   async requestMapsPermission() {
     try {
       const granted = await PermissionsAndroid.request(
@@ -116,15 +117,15 @@ export default class TabsAdvancedExample extends Component {
         {
           title: 'Location Access Required',
           message: 'This App needs to Access your location',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
           buttonPositive: 'OK',
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         this.getLocations();
-        this.setState({allowMap: true});
       } else {
         console.log('Location permission denied');
-        this.setState({allowMap: false});
       }
     } catch (err) {
       console.warn(err);
@@ -140,15 +141,12 @@ export default class TabsAdvancedExample extends Component {
       timeout: 150000,
     })
       .then(location => {
+        // let locations = '';
+        // console.log(location);
+        // const loc = this.getAddress(location.latitude, location.longitude).then(res => { console.log(res)});
         return this.setState({
           lat: location.latitude,
           lon: location.longitude,
-          region: {
-            latitude: location.latitude,
-            longitude: location.longitude,
-            latitudeDelta: 0.0002,
-            longitudeDelta: 0.007,
-          },
           loading: false,
         });
       })
@@ -175,63 +173,132 @@ export default class TabsAdvancedExample extends Component {
     this.setState({
       loading: false,
     });
-    console.log(this.state.region)
   };
-  getUser = async () => {
+  hasLocationPermission = async () => {
+    if (
+      Platform.OS === 'ios' ||
+      (Platform.OS === 'android' && Platform.version < 23)
+    ) {
+      return true;
+    }
+
+    const hasPermission = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+
+    if (hasPermission) {
+      return true;
+    }
+
+    const status = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+
+    if (status === PermissionsAndroid.RESULTS.GRANTED) {
+      return true;
+    }
+    if (status === PermissionsAndroid.RESULTS.DENIED) {
+      ToastAndroid.show(
+        'Location Permission Denied By User',
+        ToastAndroid.LONG,
+      );
+    } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+      ToastAndroid.show(
+        'Location Permissions Revoked By User',
+        ToastAndroid.LONG,
+      );
+    }
+    return false;
+  };
+
+  getLocation = async () => {
+    const hasLocationPermission = await this.hasLocationPermission();
+    if (!hasLocationPermission) {
+      return;
+    }
+  };
+  changeName = async value => {
+    let status = false;
     const {currentUser} = firebase.auth();
+    const {
+      name,
+      nameEdit,
+      descriptionEdit,
+      phoneEdit,
+      photo,
+      email,
+      locationEdit,
+      latEdit,
+      lonEdit,
+    } = this.state;
     const id = currentUser.uid;
-    let name = '';
-    let description = '';
-    let phone = '';
-    let photo = '';
-    let email = '';
-    let city = '';
-    let lat = '';
-    let historyMessages = '';
-    let lon = '';
-    await firebase
-      .database()
-      .ref('/users/' + id)
-      .once('value')
-      .then(function(snapshot) {
-        name = (snapshot.val() && snapshot.val().name) || '';
-        historyMessages =
-          (snapshot.val() && snapshot.val().historyMessages) || '';
-        photo = (snapshot.val() && snapshot.val().photo) || '';
-        description = (snapshot.val() && snapshot.val().description) || '';
-        phone = (snapshot.val() && snapshot.val().phone) || '';
-        email = currentUser.email || '';
-        city = (snapshot.val() && snapshot.val().location.city) || '';
-        lat = (snapshot.val() && snapshot.val().location.lat) || '';
-        lon = (snapshot.val() && snapshot.val().location.lon) || '';
-      });
-    // console.log(id);
-    this.setState({
+    if (nameEdit && nameEdit !== name) {
+      await firebase
+        .database()
+        .ref('users/' + id)
+        .set(
+          {
+            name: nameEdit,
+            email,
+            description: descriptionEdit,
+            phone: phoneEdit,
+            photo: photo,
+            location: {city: locationEdit, lat: latEdit, lon: lonEdit},
+          },
+          function(error) {
+            if (error) {
+              status = false;
+              // The write failed...
+              console.log(error);
+            } else {
+              // Data saved successfully!
+              status = true;
+            }
+          },
+        );
+    } else {
+      this.setState({nameEdit: name});
+    }
+    this.RBSheet.close();
+    if (status) {
+      this.setState({name: nameEdit});
+    }
+  };
+  render() {
+    const {
+      loading,
       currentUser,
       name,
       description,
       phone,
-      historyMessages,
       email,
-      city,
       photo,
+      location,
       lat,
       lon,
-      region: {
-        latitude: lat,
-        longitude: lon,
-        latitudeDelta: 0.0002,
-        longitudeDelta: 0.007,
-      },
-    });
-  };
-  async componentDidMount() {
-    await this.getUser();
-    // await this.requestMapsPermission();
-  }
-
-  render() {
-    const {loading, currentUser, city, lat, lon, historyMessages, name} = this.state;
+    } = this.state;
+    let city;
+    // axios
+    //   .get(
+    //     'https://maps.googleapis.com/maps/api/geocode/json?address=' + lat + ',' + lon + '&key=AIzaSyD-PH3UKlivnM3yGIchxxlChfXIEbKOHXI',
+    //   )
+    //   .then(response => response.json())
+    //   .then(responseJson => {
+    //     console.log(
+    //       'ADDRESS GEOCODE is BACK!! => ' + JSON.stringify(responseJson),
+    //     );
+    //   });
+    // const pos = {
+    //   lat: 40.7809261,
+    //   lng: -73.9637594,
+    // };
+    // Geocoder.geocodePosition(pos)
+    //   .then(res => {
+    //     alert(res[0].formattedAddress);
+    //   })
+    //   .catch(error => alert(error));
+    // console.log(currentUser);
+    const deviceWidth = Dimensions.get('window').width;
     return (
       <>
         <SafeAreaView style={styles.flex}>
@@ -261,37 +328,36 @@ export default class TabsAdvancedExample extends Component {
                   </Text>
                 </Body>
                 <Right>
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.changeLocation();
-                    }}>
-                    <Text style={[styles.white]} onPress={this.getLocation}>
-                      Done
-                    </Text>
-                  </TouchableOpacity>
+                  <Text style={[styles.white]} onPress={this.getLocation}>
+                    Done
+                  </Text>
                 </Right>
               </Header>
-              {/* <View style={{position: 'absolute'}}>
+              <View>
                 <Text>Latitude : {lat}</Text>
                 <Text>Longitude : {lon}</Text>
                 <Text>Address : {city}</Text>
-              </View> */}
+              </View>
               <MapView
                 provider={PROVIDER_GOOGLE}
                 showsUserLocation
                 style={styles.flex}
-                initialRegion={this.state.region}>
+                initialRegion={{
+                  latitude: Number(lat),
+                  longitude: Number(lon),
+                  latitudeDelta: 0.0002,
+                  longitudeDelta: 0.007,
+                }}>
                 <Marker
-                  title={name}
+                  title="arkademy"
                   coordinate={{
                     latitude: Number(lat),
                     longitude: Number(lon),
                   }}
                 />
                 <MaterialCommunityIcons
-                  onPress={async () => {
-                    // this.getLocation();
-                    await this.requestMapsPermission();
+                  onPress={() => {
+                    this.getLocation();
                   }}
                   name="target"
                   style={styles.icon}

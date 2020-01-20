@@ -11,6 +11,7 @@ import {
   View,
   Dimensions,
   Alert,
+  TextInput,
 } from 'react-native';
 import ActionButtons from 'react-native-action-button';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -56,6 +57,7 @@ export default class Friends extends Component {
           }
         });
       });
+    this.setState({isFetching: false, friends: result});
   }
   componentDidMount() {
     this.getAllData();
@@ -125,11 +127,11 @@ export default class Friends extends Component {
     return (
       <>
         <Container>
-          {friends.length === 0 && !isFetching && (
+          {/* {friends.length === 0 && !isFetching && (
             <Text style={styles.friendText}>
               You dont have a friend, please add first.
             </Text>
-          )}
+          )} */}
           {isFetching && <ActivityIndicator size="large" style={styles.mt} />}
           {!isFetching && (
             <>
@@ -177,13 +179,13 @@ export default class Friends extends Component {
                 }}>
                 <Text>Enter your friend email</Text>
                 <View style={styles.flex}>
-                  <Input
+                  <TextInput
                     onChangeText={value => {
                       this.setState({friend: value});
                     }}
                     onSubmitEditing={value => {}}
                     value={this.state.friend}
-                    autoCapitalize="false"
+                    autoCapitalize="none"
                     keyboardType="email-address"
                     placeholder="Type here..."
                     style={{

@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Alert,
   StatusBar,
+  PermissionsAndroid,
 } from 'react-native';
 import {
   Text,
@@ -22,6 +23,7 @@ import Spinner from 'react-native-loading-spinner-overlay';
 import {StackActions, NavigationActions} from 'react-navigation';
 import firebase from '../../../android/configs/firebase';
 import {validationService} from '../../public/validation/service';
+import GetLocation from 'react-native-get-location';
 
 export default class Register extends Component {
   constructor(props) {
@@ -45,6 +47,7 @@ export default class Register extends Component {
           value: '',
         },
       },
+      allowMap: false,
       emailError: '',
       passwordError: '',
       nameError: '',
@@ -68,15 +71,85 @@ export default class Register extends Component {
     this.getFormValidation = validationService.getFormValidation.bind(this);
     this.handleSignUp = this.handleSignUp.bind(this);
   }
+
+  componentDidMount() {
+    this.requestMapsPermission();
+  }
+
+  async requestMapsPermission() {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Location Access Required',
+          message: 'This App needs to Access your location',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        this.getLocations();
+        this.setState({allowMap: true});
+      } else {
+        console.log('Location permission denied');
+        this.setState({allowMap: false});
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  }
+
+  getLocations = async () => {
+    this.setState({
+      loading: true,
+    });
+    GetLocation.getCurrentPosition({
+      enableHighAccuracy: false,
+      timeout: 150000,
+    })
+      .then(location => {
+        // let locations = '';
+        // console.log(location);
+        // const loc = this.getAddress(location.latitude, location.longitude).then(res => { console.log(res)});
+        return this.setState({
+          lat: location.latitude,
+          lon: location.longitude,
+          loading: false,
+        });
+      })
+      .catch(ex => {
+        const {code, message} = ex;
+        console.warn(code, message);
+        if (code === 'CANCELLED') {
+          Alert.alert('Location cancelled by user or by another request');
+        }
+        if (code === 'UNAVAILABLE') {
+          Alert.alert('Location service is disabled or unavailable');
+        }
+        if (code === 'TIMEOUT') {
+          Alert.alert('Location request timed out');
+        }
+        if (code === 'UNAUTHORIZED') {
+          Alert.alert('Authorization denied');
+        }
+        Alert.alert('error');
+        this.setState({
+          loading: false,
+        });
+      });
+    this.setState({
+      loading: false,
+    });
+  };
   handleSignUp = async () => {
     await this.getFormValidation();
-    const {inputs} = this.state;
+    const {inputs, lat, allowMap} = this.state;
     if (
       inputs.email.value &&
       inputs.password.value &&
       inputs.name.value &&
       inputs.password.value.length >= 6 &&
-      inputs.passwordConfirm.value === inputs.password.value
+      inputs.passwordConfirm.value === inputs.password.value &&
+      allowMap
     ) {
       this.setState({loading: true});
       try {
@@ -88,7 +161,7 @@ export default class Register extends Component {
           );
         const id = firebase.auth().currentUser.uid;
         const email = firebase.auth().currentUser.email;
-        const {name, lat, lon, city} = this.state;
+        const {name, lon, city} = this.state;
         firebase
           .database()
           .ref('users/' + id)
@@ -99,9 +172,9 @@ export default class Register extends Component {
             about: '',
             phone: '',
             location: {
-              city: '',
-              lat: '',
-              long: '',
+              city: city,
+              lat: lat,
+              lon: lon,
             },
           });
         this.setState({loading: false});
@@ -117,6 +190,8 @@ export default class Register extends Component {
           loading: false,
         });
       }
+    } else {
+      this.requestMapsPermission();
     }
   };
 
@@ -185,9 +260,9 @@ export default class Register extends Component {
                 style={[styles.center, styles.image]}
                 source={require('../../public/images/logo.png')}
               />
-              {this.state.errorMessage && (
+              {/* {this.state.errorMessage && (
                 <Text style={styles.error}>{this.state.errorMessage}</Text>
-              )}
+              )} */}
               <Item floatingLabel style={styles.mb5}>
                 <Icon active name="person" />
                 <Label>Your name</Label>

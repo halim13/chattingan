@@ -8,10 +8,13 @@ class ListChat extends Component {
   }
   render() {
     const {item} = this.props;
+    // console.log(item);
     const id = item.id;
     const notification = item.notification;
     const name = item.name;
-    const photo = item.photo;
+    const photo = item.avatar;
+    const names = item.name;
+    const photos = item.avatar;
     const message = item.message;
     const time = item.time;
     return (
@@ -19,14 +22,27 @@ class ListChat extends Component {
         <TouchableOpacity
           style={styles.touch}
           onPress={() => {
-            this.props.navigation.navigate('Chat', {id, name, photo});
+            this.props.navigation.navigate('Chat', {
+              id,
+              name,
+              photo,
+              names,
+              photos,
+            });
           }}
           onLongPress={() => {}}>
           <Left>
             <Thumbnail
-              source={{
-                uri: `${photo}`,
-              }}
+              source={
+                photo
+                  ? {
+                      uri: `${photo}`,
+                    }
+                  : {
+                      uri:
+                        'https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png',
+                    }
+              }
             />
           </Left>
           <Body>
