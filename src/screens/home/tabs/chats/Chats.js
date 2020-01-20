@@ -23,7 +23,7 @@ import ActionButtons from 'react-native-action-button';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import firebase from '../../../../../android/configs/firebase';
 import fire from '../../../../../Firebase';
-import { withNavigation } from 'react-navigation';
+import {withNavigation} from 'react-navigation';
 
 class Chats extends Component {
   constructor() {
