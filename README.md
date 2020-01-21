@@ -44,9 +44,9 @@ Alternatively see the GitHub documentation on [creating a pull request](https://
     <img width="250" src="./src/public/screenshoots/register.jpg">
     <img width="250" src="./src/public/screenshoots/forgotPassword.jpg">
     <img width="250" src="./src/public/screenshoots/Profile.jpg">
-    <img width="250" src="./src/public/screenshoots/Location.jpg">
     <img width="250" src="./src/public/screenshoots/addFriend.jpg">
     <img width="250" src="./src/public/screenshoots/friendlist.jpg">
+    <img width="250" src="./src/public/screenshoots/friendProfile.jpg">
     <img width="250" src="./src/public/screenshoots/chatList.jpg">
     <img width="250" src="./src/public/screenshoots/chat.jpg">
 </div>
