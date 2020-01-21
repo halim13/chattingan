@@ -39,6 +39,17 @@ To contribute to Chattingan, follow these steps:
 Alternatively see the GitHub documentation on [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 
 ## Screenshots
+<div align="center">
+    <img width="250" src="./src/public/screenshoots/login.jpg">
+    <img width="250" src="./src/public/screenshoots/register.jpg">
+    <img width="250" src="./src/public/screenshoots/forgotPassword.jpg">
+    <img width="250" src="./src/public/screenshoots/Profile.jpg">
+    <img width="250" src="./src/public/screenshoots/Location.jpg">
+    <img width="250" src="./src/public/screenshoots/addFriend.jpg">
+    <img width="250" src="./src/public/screenshoots/friendlist.jpg">
+    <img width="250" src="./src/public/screenshoots/chatList.jpg">
+    <img width="250" src="./src/public/screenshoots/chat.jpg">
+</div>
 
 ## Contact
 
