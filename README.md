@@ -38,6 +38,8 @@ To contribute to Chattingan, follow these steps:
 
 Alternatively see the GitHub documentation on [creating a pull request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request).
 
+## Screenshots
+
 ## Contact
 
 If you want to contact me you can reach me at <hasanudinhalim@gmail.com>.
