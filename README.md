@@ -1,4 +1,11 @@
 <h1 align="center">Chattingan - Realtime Chat App Android</h1>
+<p align="center">
+  <img width="250" src="./src/public/images/icon.png"/>
+  <img width="250" src="https://badoystudio.com/wp-content/uploads/2019/05/firebase.png"/>
+  <img width="250" src="https://angular.github.io/react-native-renderer/assets/react.png"/>
+</p>
+
+## Introduction
 
 Chattingan is Android App for send message with other people and you can track their location easily. Built using React Native Framework and Firebase database.
 
