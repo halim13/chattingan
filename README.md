@@ -1,6 +1,6 @@
-<h1 align="center">React Native(Chattingan) - Simple Chat App Android</h1>
+<h1 align="center">Chattingan - Realtime Chat App Android</h1>
 
-Chattingan is Android App for send message with other people and you can look their location with this app. This project for handle frontend only. Built using React Native Framework.
+Chattingan is Android App for send message with other people and you can track their location easily. Built using React Native Framework and Firebase database.
 
 React Native is a JavaScript framework for writing real, natively rendering mobile applications for iOS and Android. [More about React Native](https://facebook.github.io/react-native/)
 
