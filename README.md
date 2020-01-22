@@ -1,19 +1,24 @@
 <h1 align="center">React Native(Chattingan) - Simple Chat App Android</h1>
 
 Chattingan is Android App for send message with other people and you can look their location with this app. This project for handle frontend only. Built using React Native Framework.
+
 React Native is a JavaScript framework for writing real, natively rendering mobile applications for iOS and Android. [More about React Native](https://facebook.github.io/react-native/)
+
+Firebase is a mobile and web application development platform developed by Firebase, Inc. in 2011, then acquired by Google in 2014. [More about Firebase](https://console.firebase.google.com/u/0/?hl=id)
+
 ## Built With
 [![React Native](https://img.shields.io/badge/ReactNative-0.60-blue)](https://facebook.github.io/react-native/)
+[![Firebase](https://img.shields.io/badge/Firebase-orange)](https://firebase.google.com/?hl=id)
 
 ## Requirements
-1. <a href="https://nodejs.org/en/download/">Node Js</a>
-2. Backend API using [Firebase](https://firebase.google.com/)
-3. Node_modules
-4. [react-native-cli](https://facebook.github.io/react-native/docs/getting-started)
-4. Smartphone Android
+- [`npm`](https://www.npmjs.com/get-npm)
+- [`react-native`](https://facebook.github.io/react-native/docs/getting-started)
+- [`react-native-cli`](https://facebook.github.io/react-native/docs/getting-started)
+- [`Firebase`](https://firebase.google.com/) (database)
+- Smartphone Android
 
 ## How to run the app ?
-To run Hiring Channel App, follow these steps:
+To run Chattingan App, follow these steps:
 ```
 - open your terminal
 - git clone https://github.com/halim13/chattingan.git
@@ -51,11 +56,33 @@ Alternatively see the GitHub documentation on [creating a pull request](https://
     <img width="250" src="./src/public/screenshoots/chat.jpg">
 </div>
 
-## Demo Application
-Download App [Chattingan](https://drive.google.com/file/d/1LZAbQ4W-tPKYyARVNFec8ON_QgM8Ae8y/view?usp=sharing)
+## Release APK
+
+<a href="https://drive.google.com/file/d/1LZAbQ4W-tPKYyARVNFec8ON_QgM8Ae8y/view?usp=sharing">
+  <img src="https://img.shields.io/badge/Download%20from-Google%20Drive-blue.svg?style=popout&logo=google-drive"/>
+</a>
 
 ## Contact
 
 If you want to contact me you can reach me at <hasanudinhalim@gmail.com>.
 
-Copyright © 2019 by Halim Hasanudin
+Copyright © 2020 by Halim Hasanudin
+
+## Contributors
+
+<center>
+<ul>
+
+</ul>
+  <table>
+    <tr>
+      <td align="center">
+        <a href="https://github.com/halim13">
+          <img width="100" src="https://avatars0.githubusercontent.com/u/11336853?s=460&v=4" alt="Halim Hasanudin"><br/>
+        </a>
+          <sub><b>Halim Hasanudin</b></sub><br/>
+          <sub>(React native)</sub>
+      </td>
+    </tr>
+  </table>
+</center>
