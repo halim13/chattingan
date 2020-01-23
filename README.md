@@ -18,7 +18,7 @@ Firebase is a mobile and web application development platform developed by Fireb
 [![Firebase](https://img.shields.io/badge/Firebase-orange)](https://firebase.google.com/?hl=id)
 
 ## Requirements
-- [`npm`](https://www.npmjs.com/get-npm)
+- [`NodeJS`](https://nodejs.org/en/)
 - [`react-native`](https://facebook.github.io/react-native/docs/getting-started)
 - [`react-native-cli`](https://facebook.github.io/react-native/docs/getting-started)
 - [`Firebase`](https://firebase.google.com/) (database)
